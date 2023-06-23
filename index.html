@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Therapy Session Data Review</title>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <h1>Therapy Sessions Data Revision and Assignment</h1>
+
+    <div class="wide-form">
+      <h2>Please enter the therapy session data</h2>
+      <form @submit.prevent="saveNewMessage">
+        <label>Type:</label>
+        <select v-model="newMessage.type">
+          <option value="therapist">Therapist</option>
+          <option value="patient">Patient</option>
+        </select>
+        <label>Message:</label>
+        <textarea rows="1" v-model="newMessage.messageText"></textarea>
+        <label>Codes (separated by commas):</label>
+        <textarea rows="1" v-model="newMessage.codes"></textarea>
+        <br>
+        <button type="submit">Save</button>
+        <button @click="addNewMessage">Add</button>
+        <button @click="editNewMessage">Edit</button>
+        <button @click="deleteNewMessage">Delete</button>
+        <br>
+        <br>
+        <br>
+      </form>
+    </div>
+
+    <div class="message" v-for="(message, index) in messages" :key="index">
+      <span v-if="message.type === 'therapist'" class="therapist">Therapist:</span>
+      <span v-else-if="message.type === 'patient'" class="patient">Patient:</span>
+      {{ message.messageText }}
+      <div class="codes">
+        <span v-for="code in message.codes" :key="code" class="code">{{ code }}</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        messages: [
+          { type: 'therapist', messageText: "What's on your mind?", codes: ['Codes: Open question '] },
+          { type: 'patient', messageText: "I'm so scared for tonight", codes: ['Codes: Current anxiety, ','Event '] },
+          { type: 'therapist', messageText: "Tell me about your childhood", codes: ['Codes: Personal history'] },
+          { type: 'patient', messageText: "I had a traumatic experience when I was young", codes: ['Codes: Trauma, ', 'Personal history '] },
+          { type: 'therapist', messageText: "How does that make you feel?", codes: ['Codes: Emotions'] },
+          { type: 'patient', messageText: "It makes me feel anxious and angry", codes: ['Codes: Anxiety, ', 'Anger', 'Emotions'] },
+          { type: 'therapist', messageText: "Have you discussed this with anyone?", codes: ['Codes: Support system'] },
+          { type: 'patient', messageText: "Yes, I've talked to my best friend about it", codes: ['Codes: Support system'] },
+          { type: 'therapist', messageText: "Let's practice some relaxation techniques", codes: ['Codes: Therapeutic intervention'] },
+          { type: 'patient', messageText: "Okay, I'm willing to try", codes: ['Codes: Willingness, ', 'Therapeutic intervention'] }
+        ],
+        newMessage: {
+          type: 'therapist',
+          messageText: '',
+          codes: ''
+        },
+        editingNewMessage: false
+      },
+      methods: {
+        saveNewMessage() {
+          if (this.editingNewMessage) {
+            // Editing existing message
+            // Code for editing the message goes here
+          } else {
+            // Adding new message
+            this.messages.unshift({
+              type: this.newMessage.type,
+              messageText: this.newMessage.messageText,
+              codes: this.newMessage.codes.split(',').map(code => code.trim())
+            });
+          }
+
+          this.resetNewMessageForm();
+        },
+        resetNewMessageForm() {
+          this.editingNewMessage = false;
+          this.newMessage.type = 'therapist';
+          this.newMessage.messageText = '';
+          this.newMessage.codes = '';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
