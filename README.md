@@ -22,7 +22,7 @@ This web application is designed to assist in processing and labelling training 
 
 1. Clone the repository:
 
-```  
+
 git clone <repository-url>
 Install the required dependencies. It is recommended to use a virtual environment:
   
