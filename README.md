@@ -1,5 +1,4 @@
-**# MHWCamAI
-# Mental Health Web App**
+## Mental Health Web App
 
 This web application is designed to assist in processing and labelling training and evaluation data for an AI-based mental health chatbot. The web app allows a non-technical subject matter expert to review transcriptions from therapy sessions and assign relevant codes that describe the nature of the conversation. It provides a user-friendly interface to annotate messages and visualize the assigned codes.
 
