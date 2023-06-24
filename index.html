@@ -22,10 +22,10 @@
         <label>Codes (separated by commas):</label>
         <textarea rows="1" v-model="newMessage.codes"></textarea>
         <br>
-        <button type="submit">Save</button>
-        <button @click="addNewMessage">Add</button>
-        <button @click="editNewMessage">Edit</button>
-        <button @click="deleteNewMessage">Delete</button>
+        <button class="save-button" type="submit">Save</button>
+        <button class="action-button" @click="addNewMessage">Add</button>
+        <button class="action-button" @click="editNewMessage">Edit</button>
+        <button class="action-button" @click="deleteNewMessage">Delete</button>
         <br>
         <br>
         <br>
@@ -46,18 +46,7 @@
     new Vue({
       el: '#app',
       data: {
-        messages: [
-          { type: 'therapist', messageText: "What's on your mind?", codes: ['Codes: Open question '] },
-          { type: 'patient', messageText: "I'm so scared for tonight", codes: ['Codes: Current anxiety, ','Event '] },
-          { type: 'therapist', messageText: "Tell me about your childhood", codes: ['Codes: Personal history'] },
-          { type: 'patient', messageText: "I had a traumatic experience when I was young", codes: ['Codes: Trauma, ', 'Personal history '] },
-          { type: 'therapist', messageText: "How does that make you feel?", codes: ['Codes: Emotions'] },
-          { type: 'patient', messageText: "It makes me feel anxious and angry", codes: ['Codes: Anxiety, ', 'Anger', 'Emotions'] },
-          { type: 'therapist', messageText: "Have you discussed this with anyone?", codes: ['Codes: Support system'] },
-          { type: 'patient', messageText: "Yes, I've talked to my best friend about it", codes: ['Codes: Support system'] },
-          { type: 'therapist', messageText: "Let's practice some relaxation techniques", codes: ['Codes: Therapeutic intervention'] },
-          { type: 'patient', messageText: "Okay, I'm willing to try", codes: ['Codes: Willingness, ', 'Therapeutic intervention'] }
-        ],
+        messages: [],
         newMessage: {
           type: 'therapist',
           messageText: '',
@@ -66,27 +55,75 @@
         editingNewMessage: false
       },
       methods: {
-        saveNewMessage() {
+        async saveNewMessage() {
           if (this.editingNewMessage) {
             // Editing existing message
-            // Code for editing the message goes here
+            // Make a PUT request to update the message
+            const response = await fetch(`/api/messages/${index}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(this.newMessage)
+            });
+            if (response.ok) {
+              // Update the message in the frontend
+              this.messages[index] = this.newMessage;
+            }
           } else {
             // Adding new message
-            this.messages.unshift({
-              type: this.newMessage.type,
-              messageText: this.newMessage.messageText,
-              codes: this.newMessage.codes.split(',').map(code => code.trim())
+            // Make a POST request to create a new message
+            const response = await fetch('/api/messages', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(this.newMessage)
             });
+            if (response.ok) {
+              // Add the new message to the frontend
+              const createdMessage = await response.json();
+              this.messages.unshift(createdMessage);
+            }
           }
 
           this.resetNewMessageForm();
         },
+
         resetNewMessageForm() {
           this.editingNewMessage = false;
           this.newMessage.type = 'therapist';
           this.newMessage.messageText = '';
           this.newMessage.codes = '';
+        },
+
+        async addNewMessage() {
+          // Set the new message form for adding a message
+          this.resetNewMessageForm();
+        },
+
+        async editNewMessage(index) {
+          // Set the new message form for editing an existing message
+          this.editingNewMessage = true;
+          this.newMessage.type = this.messages[index].type;
+          this.newMessage.messageText = this.messages[index].messageText;
+          this.newMessage.codes = this.messages[index].codes.join(', ');
+        },
+
+        async deleteNewMessage(index) {
+          // Make a DELETE request to delete the message
+          const response = await fetch(`/api/messages/${index}`, {
+            method: 'DELETE'
+          });
+          if (response.ok) {
+            // Remove the message from the frontend
+            this.messages.splice(index, 1);
+          }
         }
+      },
+      mounted() {
+        // Retrieve existing messages from the backend
+        fetch('/api/messages')
+          .then(response => response.json())
+          .then(data => {
+            this.messages = data;
+          });
       }
     });
   </script>
